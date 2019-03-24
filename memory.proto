@@ -1,0 +1,10 @@
+syntax = "proto3";
+package rl;
+
+message MemoryFramePb {
+  repeated double obs = 1;
+  repeated double act = 2;
+  double rew = 3;
+  repeated double next_obs = 4;
+  bool done = 5;
+}
