@@ -19,11 +19,11 @@ python3 learn.py
 ## Results
 Works on OpenAI Gym LunarLander and BipedalWalker without parameter tunning.
 
-<img src="https://github.com/george-vacariuc/rl/blob/master/results/td3.png" width="400px">
+<img src="https://github.com/george-vacariuc/rl-actor-critic/blob/master/results/td3.png" width="400px">
 
-<img src="https://github.com/george-vacariuc/rl/blob/master/results/LunarLander.gif" alt="LunarLander" width="300px">
+<img src="https://github.com/george-vacariuc/rl-actor-critic/blob/master/results/LunarLander.gif" alt="LunarLander" width="300px">
 
-<img src="https://github.com/george-vacariuc/rl/blob/master/results/BipedalWalker.gif" alt="BipedalWalker" width="300px">
+<img src="https://github.com/george-vacariuc/rl-actor-critic/blob/master/results/BipedalWalker.gif" alt="BipedalWalker" width="300px">
 
 
 
