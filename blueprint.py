@@ -10,16 +10,15 @@ act_dim = env.action_space.shape[0]
 # @TODO do not assume it is the same for all actions.
 act_limit = env.action_space.high[0]
 
-
-#from memory import LevelDbMemory
-#memory = LevelDbMemory(obs_dim=obs_dim, act_dim=act_dim, db_path='./td3_leveldb_memory', max_size=int(2e6))
-
 from memory import SimpleMemory
 memory = SimpleMemory(obs_dim=obs_dim, act_dim=act_dim, size=int(2e6))
 
+# For large memories that can be shared across machines.
+#from memory import LevelDbMemory
+#memory = LevelDbMemory(obs_dim=obs_dim, act_dim=act_dim, db_path='./td3_leveldb_memory', max_size=int(2e6))
+
 import os
 checkpoint_dir = os.path.join(os.getcwd(), 'checkpoint')
-
 
 from critic import Critic
 critic_0 = Critic(obs_dim=obs_dim, act_dim=act_dim, checkpoint_file=os.path.join(checkpoint_dir, 'critic_0.h5'))
