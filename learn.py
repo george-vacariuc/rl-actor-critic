@@ -18,12 +18,13 @@ def main():
     randomPolicyExplorer.run()
     print('### mem size [%s]'%(memory.size))
 
+    monitor.shutdown_hook = shutdown
     agent.restore()
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        executor.submit(agent.run)
+        #executor.submit(agent.run)
         executor.submit(monitor.run)
-        for explorer in learnedPolicyNoisyExplorers:
-            executor.submit(explorer._run)
+        #for explorer in learnedPolicyNoisyExplorers:
+        #    executor.submit(explorer._run)
 
 def shutdown():
     print('### shutdown Entered.')

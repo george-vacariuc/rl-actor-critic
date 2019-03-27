@@ -16,14 +16,20 @@ class Monitor(Runnable):
         self._policy = policy
         self._agents = agents
         self._monitoring_period = monitoring_period
+        self._shutdown_hook = None
         self._results_path = os.path.join(os.getcwd(), 'results', 'results_' + str(time.time()) + '.txt')
 
     def _run(self):
         last_samples = np.zeros(len(self._explorers))
         last_runs = np.zeros(len(self._agents))
         while not self._stop:
-            self._evaluateAgent()
+            avg = self._evaluateAgent()[0]
 
+            if avg > 250:
+                print("### Trigger shutdown.")
+                if self._shutdown_hook is not None:
+                    self._shutdown_hook()
+                    
             # Exploration metrics.
             total_samples = np.array([explorer.ticks for explorer in self._explorers])
             delta_samples = total_samples - last_samples
@@ -52,4 +58,13 @@ class Monitor(Runnable):
     
         with open(self._results_path, "a+b") as fp:
             pickle.dump(test_runs, fp)
-        
+        return test_runs    
+
+    @property
+    def shutdown_hook(self):
+        return self._shutdown_hook
+
+    @shutdown_hook.setter
+    def shutdown_hook(self, shutdown_hook):
+        self._shutdown_hook = shutdown_hook
+    
