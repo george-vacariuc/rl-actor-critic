@@ -18,6 +18,7 @@ def main():
     randomPolicyExplorer.run()
     print('### mem size [%s]'%(memory.size))
 
+    monitor.shutdown_criteria = lambda rews : len(rews) > 30 and np.average(rews) > 250
     monitor.shutdown_hook = shutdown
     agent.restore()
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:

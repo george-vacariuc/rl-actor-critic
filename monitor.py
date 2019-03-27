@@ -6,6 +6,7 @@ import os
 import pickle
 import time
 import math
+from collections import deque
 
 class Monitor(Runnable):
     def __init__(self, memory, explorers, env, policy, agents, monitoring_period=5):
@@ -17,18 +18,17 @@ class Monitor(Runnable):
         self._agents = agents
         self._monitoring_period = monitoring_period
         self._shutdown_hook = None
+        self._shutdown_criteria = None
+        self._eval_rews = deque(maxlen=100)
         self._results_path = os.path.join(os.getcwd(), 'results', 'results_' + str(time.time()) + '.txt')
 
     def _run(self):
         last_samples = np.zeros(len(self._explorers))
         last_runs = np.zeros(len(self._agents))
+        
+        
         while not self._stop:
-            avg = self._evaluateAgent()[0]
-
-            if avg > 250:
-                print("### Trigger shutdown.")
-                if self._shutdown_hook is not None:
-                    self._shutdown_hook()
+            self._evaluateAgent()
                     
             # Exploration metrics.
             total_samples = np.array([explorer.ticks for explorer in self._explorers])
@@ -41,6 +41,15 @@ class Monitor(Runnable):
             delta_runs = agent_runs - last_runs
             print("### Agent runs: {}, avg: {}.".format(delta_runs, np.average(delta_runs)))
             last_runs = agent_runs
+
+            if self._shutdown_criteria is None:
+                raise Exception("Must set shutdown_criteria.")
+                    
+                    
+            if self._shutdown_criteria(self._eval_rews):
+                print("### Trigger shutdown.")
+                if self._shutdown_hook is not None:
+                    self._shutdown_hook()
             
             time.sleep(self._monitoring_period)
 
@@ -53,12 +62,13 @@ class Monitor(Runnable):
 
     def _evaluateAgent(self):
         test_runs = [self._play() for i in range(10)]
+        self._eval_rews.extend(test_runs)
+        
         test_runs = (np.min(test_runs), np.average(test_runs), np.max(test_runs))
         print("### _evaluateAgent rewards [%s], [%s], [%s]." % (test_runs))
     
         with open(self._results_path, "a+b") as fp:
             pickle.dump(test_runs, fp)
-        return test_runs    
 
     @property
     def shutdown_hook(self):
@@ -67,4 +77,14 @@ class Monitor(Runnable):
     @shutdown_hook.setter
     def shutdown_hook(self, shutdown_hook):
         self._shutdown_hook = shutdown_hook
+
+    @property
+    def shutdown_criteria(self):
+        return self._shutdown_criteria
+
+    @shutdown_criteria.setter
+    def shutdown_criteria(self, shutdown_criteria):
+        self._shutdown_criteria = shutdown_criteria
+        
+        
     
