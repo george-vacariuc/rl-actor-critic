@@ -47,7 +47,7 @@ class Monitor(Runnable):
                     
                     
             if self._shutdown_criteria(self._eval_rews):
-                print("### Trigger shutdown.")
+                print("### Trigger shutdown, agent_runs: {}.".format(agent_runs))
                 if self._shutdown_hook is not None:
                     self._shutdown_hook()
             
