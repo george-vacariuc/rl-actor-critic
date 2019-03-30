@@ -3,7 +3,8 @@ import math
 import tensorflow as tf
 from runnable import Runnable
 
-# An agent that explores the environment given a policy and collects memories.
+# An agent that explores the environment given a policy.
+# The agent saves the experince in the provided memory.
 class Explorer(Runnable):
     def __init__(self, memory, policy, env, max_steps=math.inf):
         Runnable.__init__(self)
