@@ -8,65 +8,61 @@ import time
 import math
 from collections import deque
 
+
 class Monitor(Runnable):
-    def __init__(self, memory, explorers, env, policy, agents, monitoring_period=5):
+    def __init__(self, env, policy, agents, memory, fetch_rewards, monitoring_period=5):
         Runnable.__init__(self)
-        self._memory = memory
-        self._explorers = explorers
         self._env = env
         self._policy = policy
         self._agents = agents
+        self._memory = memory
+        self._fetch_rewards = fetch_rewards
         self._monitoring_period = monitoring_period
         self._shutdown_hook = None
         self._shutdown_criteria = None
         self._eval_rews = deque(maxlen=100)
-        self._results_path = os.path.join(os.getcwd(), 'results', 'results_' + str(time.time()) + '.txt')
+        self._results_path = os.path.join(
+            os.getcwd(), 'results', 'results_' + str(time.time()) + '.txt')
 
     def _run(self):
-        last_samples = np.zeros(len(self._explorers))
         last_runs = np.zeros(len(self._agents))
-        
-        
+        last_time = time.time()
+
         while not self._stop:
+            time.sleep(self._monitoring_period)
             self._evaluateAgent()
-                    
-            # Exploration metrics.
-            total_samples = np.array([explorer.ticks for explorer in self._explorers])
-            delta_samples = total_samples - last_samples
-            print("### Environment samples: {}, avg: {}.".format(delta_samples, np.average(delta_samples)))
-            last_samples = total_samples
 
             # Learning metrics.
             agent_runs = np.array([agent.ticks for agent in self._agents])
             delta_runs = agent_runs - last_runs
-            print("### Agent runs: {}, avg: {}.".format(delta_runs, np.average(delta_runs)))
+            now = time.time()
+            delta_time = now - last_time
+            print("### Agent qps: {}, avg: {}.".format(
+                delta_runs / delta_time,
+                np.average(delta_runs) / delta_time))
             last_runs = agent_runs
+            last_time = now
 
             if self._shutdown_criteria is None:
                 raise Exception("Must set shutdown_criteria.")
-                    
-                    
+
             if self._shutdown_criteria(self._eval_rews):
-                print("### Trigger shutdown, agent_runs: {}.".format(agent_runs))
+                print("### Trigger shutdown, agent_runs: {}, memory: {}."
+                      .format(agent_runs, self._memory.lifetime_size))
                 if self._shutdown_hook is not None:
                     self._shutdown_hook()
-            
-            time.sleep(self._monitoring_period)
-
-    def _play(self):
-        state, done, total_reward = self._env.reset(), False, 0
-        while not done:
-            state, reward, done, _ = self._env.step(self._policy(tf.constant([state]))[0])
-            total_reward += reward
-        return total_reward
 
     def _evaluateAgent(self):
-        test_runs = [self._play() for i in range(10)]
+        test_runs = self._fetch_rewards()
         self._eval_rews.extend(test_runs)
-        
-        test_runs = (np.min(test_runs), np.average(test_runs), np.max(test_runs))
-        print("### _evaluateAgent rewards [%s], [%s], [%s]." % (test_runs))
-    
+
+        if len(test_runs) == 0:
+            return
+        test_runs = (np.min(test_runs), np.average(test_runs),
+                     np.max(test_runs), self._memory.lifetime_size)
+        print(
+            "### _evaluateAgent rewards [%s], [%s], [%s], mem: [%s]." % (test_runs))
+
         with open(self._results_path, "a+b") as fp:
             pickle.dump(test_runs, fp)
 
@@ -85,6 +81,3 @@ class Monitor(Runnable):
     @shutdown_criteria.setter
     def shutdown_criteria(self, shutdown_criteria):
         self._shutdown_criteria = shutdown_criteria
-        
-        
-    

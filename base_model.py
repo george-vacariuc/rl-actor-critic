@@ -13,3 +13,7 @@ class BaseModel():
     def restore(self):
         if os.path.exists(self.checkpoint_file):
             self.model.load_weights(self.checkpoint_file)
+
+    @property
+    def get_checkpoint_file(self):
+        return self.checkpoint_file

@@ -8,3 +8,7 @@ message MemoryFramePb {
   repeated double next_obs = 4;
   bool done = 5;
 }
+
+message EpisodeMemoryFramePb {
+  repeated MemoryFramePb memory_frame = 1;
+}
