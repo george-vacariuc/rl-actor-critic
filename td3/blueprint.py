@@ -23,17 +23,9 @@ env_name = 'LunarLanderContinuous-v2'
 #env_name = 'BipedalWalkerHardcore-v2'
 #env_name = 'MountainCarContinuous-v0'
 
-#env = gym.make(env_name)
-#def make_env(): return gym.make(env_name)
-
-from jimmy.quad_lunar import QuadLunar
+from gym_wrapper.quad_lunar import QuadLunar
 env = QuadLunar(env_name)
 def make_env(): return QuadLunar(env_name)
-
-#obs_dim = env.observation_space.shape[0]
-#act_dim = env.action_space.shape[0]
-# @TODO do not assume it is the same for all actions.
-#act_limit = env.action_space.high[0]
 
 obs_dim = env.obs_dim()
 act_dim = env.act_dim()
