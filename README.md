@@ -3,7 +3,7 @@
 A modular framework to serve as a foundation to enable plug and play experimentation with RL ideas.
 
 * The system is modular, with reusable classes for actor, critic, memory, agent, etc.
-* Exploration and learning run as separate processes in separate docker instances. This makes it possible to run multiple distributed explorers.
+* Exploration and learning run as separate processes in separate Docker instances. This makes it possible to run multiple distributed explorers.
 * The components are wired together in one place, eg [td3/blueprint.py](td3/blueprint.py), [dqn/blueprint.py](dqn/blueprint.py).
 * Uses Tensorflow2 with Keras, eager execution with graph inlining.
 
