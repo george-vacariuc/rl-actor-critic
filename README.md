@@ -1,6 +1,6 @@
 # Deep Reinforcement Learning - distributed modular framework
 
-A modular framework to serve as a foundation to enable plug and play experimentation with RL ideas.
+A modular framework to enable plug and play experimentation with RL ideas.
 
 * The system is modular, with reusable classes for actor, critic, memory, agent, etc.
 * Exploration and learning run as separate processes in separate Docker instances. This makes it possible to run multiple distributed explorers.
